@@ -8,4 +8,5 @@ dependencies = [
     "discord-py>=2.4.0",
     "mysql-connector-python>=9.2.0",
     "psycopg2-binary>=2.9.10",
+    "pytz>=2025.1",
 ]

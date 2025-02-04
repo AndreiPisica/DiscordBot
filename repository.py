@@ -88,28 +88,32 @@ def end_game_session(user_id, game_name):
         close_db()
 
 
-def get_top_3_players(game_name):
+async def get_top_3_players(general_channel):
     cnx = ensure_connection()
     if cnx is None:
         return
 
+    rank_message = "**🏆 Weekly Top Players 🏆**\n\n"
     cursor = cnx.cursor()
     try:
-        cursor.execute(
-            """
-            SELECT username, SUM(duration) AS total_playtime
+        cursor.execute("""
+            SELECT user_id, username, game_name, SUM(duration) AS total_playtime
             FROM GameSessions
-            WHERE game_name = %s
-            AND end_time >= NOW() - INTERVAL 7 DAY
-            GROUP BY user_id
+            WHERE end_time >= NOW() - INTERVAL 7 DAY
+            GROUP BY user_id, username, game_name
             ORDER BY total_playtime DESC
             LIMIT 3;
-        """, (game_name, ))
+        """)
 
         top_players = cursor.fetchall()
-        for rank, (username, playtime) in enumerate(top_players, start=1):
-            print(f"{rank}. {username} - {playtime} seconds")
+        print(top_players)
+        for rank, (user_id, username, game_name,
+                   total_playtime) in enumerate(top_players, start=1):
+            rank_message += f"**{rank}.** **{username}** played *{game_name}* for `{total_playtime} minutes`\n"
+        print(rank_message)
+        await general_channel.send(rank_message)
     except mysql.connector.Error as err:
         print(f"❌ Database Error: {err}")
     finally:
         cursor.close()
+        close_db()
