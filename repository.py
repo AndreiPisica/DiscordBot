@@ -12,7 +12,7 @@ def connect_to_db():
         if cnx.is_connected():
             print("Connected to MySQL database")
             return cnx
-    except mysql.connector.Error as err:
+    except Exception as err:
         print(f"Error: '{err}'")
         return None
 
