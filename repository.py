@@ -37,7 +37,7 @@ def start_game_session(user_id, username, game_name):
         """, (user_id, username, game_name))
         cnx.commit()
         print(f"Started session for {username} playing {game_name}")
-    except mysql.connector.Error as err:
+    except Exception as err:
         print(f"❌ Database Error: {err}")
     finally:
         cursor.close()
