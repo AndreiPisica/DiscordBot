@@ -25,7 +25,7 @@ async def on_presence_update(before, after):
   general_channel = before.guild.system_channel
 
   if general_channel is None:
-    general_channel = before.guild.get_channel(1335311911704723539)
+    general_channel = before.guild.get_channel(223478400390660096)
 
   #if before.status != after.status:
     #if after.status == discord.Status.online:
@@ -78,7 +78,7 @@ async def weekly_message():
     guild = client.guilds[0]
     print(guild.system_channel)
     general_channel = guild.system_channel or guild.get_channel(
-        1335311911704723539)  # Replace with your channel ID
+        223478400390660096)  # Replace with your channel ID
 
     if general_channel:
       await repository.get_top_3_players(general_channel)
