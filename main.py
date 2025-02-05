@@ -5,11 +5,12 @@ from datetime import datetime, timedelta
 import repository
 import asyncio
 import pytz
+from dotenv import load_dotenv
 
 client = discord.Client(intents=Intents.all())
 active_games = {}
 romania_tz = pytz.timezone("Europe/Bucharest")
-
+load_dotenv()
 
 @client.event
 async def on_ready():
@@ -27,8 +28,8 @@ async def on_presence_update(before, after):
     general_channel = before.guild.get_channel(1335311911704723539)
 
   #if before.status != after.status:
-  #if after.status == discord.Status.online:
-  #await general_channel.send(f'{after.name} is now online')
+    #if after.status == discord.Status.online:
+      #await general_channel.send(f'{after.name} is now online')
 
   # Handle Game Start
   if before.activity != after.activity and after.activity is not None:
@@ -84,4 +85,4 @@ async def weekly_message():
       #await general_channel.send()
 
 
-client.run(os.getenv('TOKEN'))
+client.run(os.getenv('DISCORD_TOKEN'))
