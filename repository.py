@@ -2,11 +2,7 @@ import os
 import mysql.connector
 from mysql.connector import errorcode
 
-cnx = None
-
-
 def connect_to_db():
-    global cnx
     try:
         cnx = mysql.connector.connect(user=os.getenv("MYSQL_USER"),
                                       password=os.getenv("MYSQL_PASSWORD"),
@@ -20,21 +16,7 @@ def connect_to_db():
         print(f"Error: '{err}'")
         return None
 
-
-def ensure_connection():
-    """Ensure the database connection is active, and reconnect if needed."""
-    global cnx
-    if cnx is None or not cnx.is_connected():
-        print("🔄 Reconnecting to MySQL...")
-        cnx = connect_to_db()
-        if cnx is None:
-            print("❌ Failed to reconnect to MySQL")
-            return None
-    return cnx
-
-
 def close_db():
-    global cnx
     if cnx and cnx.is_connected():
         print("Closing connection to MySql")
         cnx.close()
@@ -42,13 +24,12 @@ def close_db():
 
 
 def start_game_session(user_id, username, game_name):
-    global cnx
-    cnx = connect_to_db()
-    if cnx is None:
-        return
-
-    cursor = cnx.cursor()
     try:
+        cnx = connect_to_db()
+        if cnx is None:
+            return
+
+        cursor = cnx.cursor()
         cursor.execute(
             """
             INSERT INTO GameSessions (user_id, username, game_name)
@@ -64,12 +45,11 @@ def start_game_session(user_id, username, game_name):
 
 
 def end_game_session(user_id, game_name):
-    cnx = connect_to_db()
-    if cnx is None:
-        return
-
-    cursor = cnx.cursor()
     try:
+        cnx = connect_to_db()
+        if cnx is None:
+            return
+        cursor = cnx.cursor()
         cursor.execute(
             """
             UPDATE GameSessions
@@ -89,13 +69,12 @@ def end_game_session(user_id, game_name):
 
 
 async def get_top_3_players(general_channel):
-    cnx = ensure_connection()
-    if cnx is None:
-        return
-
     rank_message = "**🏆 Weekly Top Players 🏆**\n\n"
-    cursor = cnx.cursor()
     try:
+        cnx = connect_to_db()
+        if cnx is None:
+            return
+        cursor = cnx.cursor()
         cursor.execute("""
             SELECT user_id, username, game_name, SUM(duration) AS total_playtime
             FROM GameSessions
