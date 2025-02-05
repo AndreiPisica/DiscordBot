@@ -16,8 +16,8 @@ def connect_to_db():
         print(f"Error: '{err}'")
         return None
 
-def close_db():
-    if cnx and cnx.is_connected():
+def close_db(cnx):
+    if cnx.is_connected():
         print("Closing connection to MySql")
         cnx.close()
         cnx = None
@@ -41,7 +41,7 @@ def start_game_session(user_id, username, game_name):
         print(f"❌ Database Error: {err}")
     finally:
         cursor.close()
-        close_db()
+        close_db(cnx)
 
 
 def end_game_session(user_id, game_name):
@@ -65,7 +65,7 @@ def end_game_session(user_id, game_name):
         print(f"❌ Database Error: {err}")
     finally:
         cursor.close()
-        close_db()
+        close_db(cnx)
 
 
 async def get_top_3_players(general_channel):
@@ -95,4 +95,4 @@ async def get_top_3_players(general_channel):
         print(f"❌ Database Error: {err}")
     finally:
         cursor.close()
-        close_db()
+        close_db(cnx)
