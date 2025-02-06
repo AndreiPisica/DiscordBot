@@ -41,7 +41,7 @@ async def on_ready():
   print(f"✅ Starting background task")
   bot.loop.create_task(weekly_message())  # Start the background task
 
-@bot.command(name="help")
+@bot.command(name="bothelp")
 async def help_command(ctx):
     help_message = (
         "**Bot Help**\n\n"
