@@ -61,14 +61,14 @@ async def muteBot(ctx):
     global mute
     write_mute_status(True)
     mute = True
-    ctx.send("🔇 Bot is now muted.")
+    await ctx.send("🔇 Bot is now muted.")
 
 @bot.command(name="unmute")
 async def unmuteBot(ctx):
     global mute
     write_mute_status(False)
     mute = False
-    ctx.send("🔊 Bot is now unmuted.")
+    await ctx.send("🔊 Bot is now unmuted.")
 
 @bot.command(name="rankings")
 async def rankings(ctx, duration: str = "7d"):
