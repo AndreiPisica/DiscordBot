@@ -1,6 +1,7 @@
 import discord
 import os
 from discord import Intents
+from discord.ext import commands
 from datetime import datetime, timedelta
 import repository
 import asyncio
@@ -8,6 +9,7 @@ import pytz
 from dotenv import load_dotenv
 
 client = discord.Client(intents=Intents.all())
+bot = commands.Bot(command_prefix="!")
 active_games = {}
 romania_tz = pytz.timezone("Europe/Bucharest")
 load_dotenv()
@@ -16,6 +18,25 @@ load_dotenv()
 async def on_ready():
   print(f"✅ Starting background task")
   client.loop.create_task(weekly_message())  # Start the background task
+
+@bot.command(name="rankings")
+async def rankings(ctx, duration: str = "7d"):
+    """
+    Usage: !rankings 3d   or   !rankings 1d
+    If no duration is provided, defaults to 7 days.
+    """
+    try:
+      duration = duration.strip().lower()
+      if duration.endswith("d"):
+          days = int(duration[:-1])
+      else:
+          # If the format is not correct, assume it's just a number of days.
+          days = int(duration)
+    except ValueError:
+        await ctx.send("Invalid duration format. Please use a number followed by 'd' (e.g., 3d or 1d).")
+        return
+    ranking_message = await repository.get_rankings(days)
+    await ctx.send(ranking_message)
 
 
 @client.event
@@ -39,7 +60,7 @@ async def on_presence_update(before, after):
       # Prevent duplicate start messages
       if active_games.get(user_id) != game_name:
         active_games[user_id] = game_name  # Mark game as active
-        await general_channel.send(f'{after.name} is now playing {game_name}')
+        #await general_channel.send(f'{after.name} is now playing {game_name}')
         repository.start_game_session(user_id, after.name, game_name)
 
     # Handle Game Stop

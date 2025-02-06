@@ -67,6 +67,40 @@ def end_game_session(user_id, game_name):
         cursor.close()
         close_db(cnx)
 
+async def get_rankings(days: int):
+    """
+    Queries the database for rankings for the past `days` days.
+    Returns a formatted string with the rankings.
+    """
+    try:
+        cnx = connect_to_db()
+        if cnx is None:
+            return "Database connection error."
+    
+        rank_message = f"**🏆 Rankings for the past {days} day(s) 🏆**\n\n"
+        cursor = cnx.cursor()
+        # Use the days parameter in the SQL query.
+        query = f"""
+            SELECT user_id, username, game_name, SUM(duration) AS total_playtime
+            FROM GameSessions
+            WHERE end_time >= NOW() - INTERVAL {days} DAY
+            GROUP BY user_id, username, game_name
+            ORDER BY total_playtime DESC
+            LIMIT 3;
+        """
+        cursor.execute(query)
+        top_players = cursor.fetchall()
+        if not top_players:
+            rank_message += "No rankings available."
+        else:
+            for rank, (user_id, username, game_name, total_playtime) in enumerate(top_players, start=1):
+                rank_message += f"**{rank}.** **{username}** played *{game_name}* for `{total_playtime} minutes`\n"
+        return rank_message
+    except Exception as err:
+        return f"Error fetching rankings: {err}"
+    finally:
+        cursor.close()
+        close_db(cnx)
 
 async def get_top_3_players(general_channel):
     rank_message = "**🏆 Weekly Top Players 🏆**\n\n"
@@ -85,11 +119,8 @@ async def get_top_3_players(general_channel):
         """)
 
         top_players = cursor.fetchall()
-        print(top_players)
-        for rank, (user_id, username, game_name,
-                   total_playtime) in enumerate(top_players, start=1):
+        for rank, (user_id, username, game_name, total_playtime) in enumerate(top_players, start=1):
             rank_message += f"**{rank}.** **{username}** played *{game_name}* for `{total_playtime} minutes`\n"
-        print(rank_message)
         await general_channel.send(rank_message)
     except mysql.connector.Error as err:
         print(f"❌ Database Error: {err}")
