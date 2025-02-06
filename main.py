@@ -64,28 +64,28 @@ async def wait_until(target_time):
 
 
 async def weekly_message():
+  try:
+    await client.wait_until_ready()
+    while True:
+      now = datetime.now(romania_tz)
+      days_until_sunday = (6 - now.weekday()) % 7  # 6 = Sunday
+      next_sunday = now + timedelta(days=days_until_sunday)
+      target_time = romania_tz.localize(
+          datetime(next_sunday.year, next_sunday.month, next_sunday.day, 20, 0,
+                  0))
 
-  await client.wait_until_ready()
+      print(f"Next Sunday: {target_time}")
+      await wait_until(target_time)
 
-  while True:
-    now = datetime.now(romania_tz)
-    days_until_sunday = (6 - now.weekday()) % 7  # 6 = Sunday
-    next_sunday = now + timedelta(days=days_until_sunday)
-    target_time = romania_tz.localize(
-        datetime(next_sunday.year, next_sunday.month, next_sunday.day, 20, 0,
-                 0))
+      guild = client.guilds[0]
+      print(guild.system_channel)
+      general_channel = guild.system_channel or guild.get_channel(
+          223478400390660096)  # Replace with your channel ID
 
-    print(f"Next Sunday: {target_time}")
-    await wait_until(target_time)
-
-    guild = client.guilds[0]
-    print(guild.system_channel)
-    general_channel = guild.system_channel or guild.get_channel(
-        223478400390660096)  # Replace with your channel ID
-
-    if general_channel:
-      await repository.get_top_3_players(general_channel)
-      #await general_channel.send()
-
+      if general_channel:
+        await repository.get_top_3_players(general_channel)
+        #await general_channel.send()
+  except Exception as err:
+      print(f"Error {err}")
 
 client.run(os.getenv('DISCORD_TOKEN'))
