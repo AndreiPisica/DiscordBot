@@ -64,7 +64,7 @@ async def muteBot(ctx):
     ctx.send("🔇 Bot is now muted.")
 
 @bot.command(name="unmute")
-def unmuteBot(ctx):
+async def unmuteBot(ctx):
     global mute
     write_mute_status(False)
     mute = False
